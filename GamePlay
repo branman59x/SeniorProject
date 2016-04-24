@@ -1,0 +1,116 @@
+import java.util.*;
+
+public class Gameplay {
+
+	static char[][] board = new char[6][7];
+	static Scanner scan = new Scanner(System.in);
+	static Random rand = new Random();
+	
+	public static void main(String[] args) throws Exception
+	{		
+		for(int r = 0; r < board.length; r++)
+			for(int c = 0; c < board[0].length; c++)
+				board[r][c] = '-';
+		
+		int computer, player;
+		boolean playerSuccess;
+		
+		while(true)
+		{
+			Thread.sleep(2000);
+			computer = getMove();
+			compMove(computer);
+			
+			clear();
+			printArray();
+			
+			System.out.print("\nIt's your turn. What column would you like to go in? ");
+			player = scan.nextInt();
+			playerSuccess = playMove(player);
+			
+			//error trapping for column fill
+			while(!playerSuccess)
+			{
+				System.out.print("\nThat column is filled. Pick another column to go in: ");
+				player = scan.nextInt();
+				playerSuccess = playMove(player);
+			} //end of error trapping
+			
+			clear();
+			printArray();
+			System.out.println();
+		
+		}
+	}
+	
+	public static void printArray()
+	{
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 0; c < board[0].length; c++)
+				System.out.print(board[r][c] + " ");
+			System.out.println();
+		}
+				
+	}
+	
+	//where AI will go
+	public static int getMove()
+	{
+		int col = rand.nextInt(7) + 1; 
+		while(board[0][col - 1] != '-')
+		{
+			col = rand.nextInt(7) + 1;
+		}
+		
+		return col;
+	}
+	
+	//place the computer's piece
+	public static void compMove(int col)
+	{
+		col--;
+		for(int r = board.length - 1; r >= 0; r--)
+		{
+			if(board[r][col] == '-')
+			{
+				board[r][col] = 'X';
+				r = -5;
+			}
+		}
+	}
+
+	//place the player's piece
+	public static boolean playMove(int col)
+	{	
+		//error trapping for range
+		boolean valid = false;
+		if (col >= 1 && col <= 7)
+			valid = true;
+		while(!valid)
+		{
+			System.out.print("\nThat is not in the range of columns. Enter a new value: ");
+			col = scan.nextInt();
+			if (col >= 1 && col <= 7)
+				valid = true;
+		} //end of error trapping
+		
+		col--;
+		for(int r = board.length - 1; r >= 0; r--)
+		{
+			if(board[r][col] == '-')
+			{	
+				board[r][col] = 'O';
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static void clear()
+	{
+		for(int i = 0; i < 25; i++)
+			System.out.println();
+	}
+	
+}
