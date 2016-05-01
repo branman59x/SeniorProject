@@ -17,12 +17,24 @@ public class Gameplay {
 		
 		while(true)
 		{
-			Thread.sleep(2000);
+			Thread.sleep(1000);
 			computer = getMove();
 			compMove(computer);
 			
 			clear();
 			printArray();
+			
+			int isWin = isWinner();
+			if(isWin == -1)
+			{
+				System.out.println("The computer wins!!!");
+				break;
+			}
+			else if(isWin == 1)
+			{
+				System.out.println("The player wins!!!");
+				break;
+			}
 			
 			System.out.print("\nIt's your turn. What column would you like to go in? ");
 			player = scan.nextInt();
@@ -38,6 +50,18 @@ public class Gameplay {
 			
 			clear();
 			printArray();
+			isWin = isWinner();
+			if(isWin == -1)
+			{
+				System.out.println("The computer wins!!!");
+				break;
+			}
+			else if(isWin == 1)
+			{
+				System.out.println("The player wins!!!");
+				break;
+			}
+			
 			System.out.println();
 		
 		}
@@ -105,6 +129,122 @@ public class Gameplay {
 			}
 		}
 		return false;
+	}
+	
+	public static int isWinner()
+	{
+		//int winner = 0;
+		char player = '-';
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				player = board[r][c];
+				if(board[r][c] != '-')
+				{
+					//check left
+					if(c - 3 >= 0)
+					{
+						if(player == board[r][c-1] && player == board[r][c-2] && player == board[r][c-3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//check right
+					if(c + 3 < board[0].length)
+					{
+						if(player == board[r][c+1] && player == board[r][c+2] && player == board[r][c+3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//check down
+					if(r - 3 >= 0)
+					{
+						if(player == board[r-1][c] && player == board[r-2][c] && player == board[r-3][c])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//checks up
+					if(r + 3 < board.length)
+					{
+						if(player == board[r+1][c] && player == board[r+2][c] && player == board[r+3][c])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//checks up left
+					if(c - 3 >= 0 && r + 3 < board.length)
+					{
+						if(player == board[r + 1][c-1] && player == board[r + 2][c-2] && player == board[r + 3][c-3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//checks up right
+					if(c + 3 < board[0].length && r + 3 < board.length)
+					{
+						if(player == board[r + 1][c+1] && player == board[r + 2][c+2] && player == board[r + 3][c+3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//checks down left
+					if(c - 3 >= 0 && r - 3 >= 0)
+					{
+						if(player == board[r - 1][c-1] && player == board[r - 2][c-2] && player == board[r - 3][c-3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					//checks down right
+					if(c + 3 < board[0].length && r - 3 >= 0)
+					{
+						if(player == board[r - 1][c+1] && player == board[r - 2][c+2] && player == board[r - 3][c+3])
+						{
+							if(player == 'X')
+								return -1;
+							else 
+								return 1;
+						}
+					}
+					
+					
+					
+				}
+			}
+		}
+		
+		return 0;
 	}
 	
 	public static void clear()
