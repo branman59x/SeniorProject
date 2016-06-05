@@ -23,9 +23,6 @@ public class Gameplay {
 			for(int c = 0; c < board[0].length; c++)
 				board[r][c] = '-';
 		
-		//int computer, player;
-		boolean playerSuccess;
-		
 		Thread.sleep(1000);
 		computer = getMove();
 		compMove(computer);
@@ -148,22 +145,7 @@ public class Gameplay {
 					playMove(Integer.parseInt(num));
 					paintBoard();
 					int isWin = isWinner();
-					if(isWin == -1)
-					{
-						yourTurn.setVisible(false);
-						JLabel winMessage = new JLabel("The AI Wins!");
-						winMessage.setBounds(550,131,200,200);
-						winMessage.setFont(new Font("Serif", Font.BOLD, 25));
-						frame.add(winMessage);
-						btn1.setEnabled(false);
-						btn2.setEnabled(false);
-						btn3.setEnabled(false);
-						btn4.setEnabled(false);
-						btn5.setEnabled(false);
-						btn6.setEnabled(false);
-						btn7.setEnabled(false);
-					}
-					else if(isWin == 1)
+					if(isWin == 1)
 					{
 						yourTurn.setVisible(false);
 						JLabel winMessage = new JLabel("The Player Wins!");
@@ -181,37 +163,6 @@ public class Gameplay {
 					moves++;
 					if(isWin == 0)
 						timer.start();
-					isWin = isWinner();
-					if(isWin == -1)
-					{
-						yourTurn.setVisible(false);
-						JLabel winMessage = new JLabel("The AI Wins!");
-						winMessage.setBounds(550,131,200,200);
-						winMessage.setFont(new Font("Serif", Font.BOLD, 25));
-						frame.add(winMessage);
-						btn1.setEnabled(false);
-						btn2.setEnabled(false);
-						btn3.setEnabled(false);
-						btn4.setEnabled(false);
-						btn5.setEnabled(false);
-						btn6.setEnabled(false);
-						btn7.setEnabled(false);
-					}
-					else if(isWin == 1)
-					{
-						yourTurn.setVisible(false);
-						JLabel winMessage = new JLabel("The Player Wins!");
-						winMessage.setBounds(500,131,200,200);
-						winMessage.setFont(new Font("Serif", Font.BOLD, 25));
-						frame.add(winMessage);
-						btn1.setEnabled(false);
-						btn2.setEnabled(false);
-						btn3.setEnabled(false);
-						btn4.setEnabled(false);
-						btn5.setEnabled(false);
-						btn6.setEnabled(false);
-						btn7.setEnabled(false);
-					}
 					
 				}
 				else
@@ -249,18 +200,7 @@ public class Gameplay {
 			}
 		}
 	}
-	//where AI will go
-//	public static int getMove()
-//	{
-//		int col = rand.nextInt(7) + 1; 
-//		while(board[0][col - 1] != '-')
-//		{
-//			col = rand.nextInt(7) + 1;
-//		}
-//		
-//		return col;
-//	}
-	
+	//where AI will go	
 	public static int getMove()
 	{
 		if(moves == 0)
@@ -394,19 +334,7 @@ public class Gameplay {
 	}
 	
 	//place the computer's piece
-//	public static void compMove(int col)
-//	{
-//		col--;
-//		for(int r = board.length - 1; r >= 0; r--)
-//		{
-//			if(board[r][col] == '-')
-//			{
-//				board[r][col] = 'X';
-//				r = -5;
-//			}
-//		}
-//	}
-	
+
 	public static void compMove(int col)
 	{
 		int[] totals = countColumns();
@@ -565,7 +493,6 @@ public class Gameplay {
 
 				if((c + 3) < board[0].length &&(r - 3 >= 0) && board[r][c] == 'O' && board[r-3][c+3] == 'O')
 				{
-					System.out.println("ayyyyooo");
 					if(board[r-1][c + 1] == 'O' &&  board[r-2][c+2] == '-')
 					{
 						if(r - 2 == 5 || board[r-1][c+2] != '-')
