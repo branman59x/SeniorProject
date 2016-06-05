@@ -5,25 +5,27 @@ public class Gameplay {
 	static char[][] board = new char[6][7];
 	static Scanner scan = new Scanner(System.in);
 	static Random rand = new Random();
-	
+	static int moves = 0;
+	static int nothings = 0;
+
 	public static void main(String[] args) throws Exception
 	{		
 		for(int r = 0; r < board.length; r++)
 			for(int c = 0; c < board[0].length; c++)
 				board[r][c] = '-';
-		
+
 		int computer, player;
 		boolean playerSuccess;
-		
+
 		while(true)
 		{
 			Thread.sleep(1000);
 			computer = getMove();
 			compMove(computer);
-			
+
 			clear();
 			printArray();
-			
+
 			int isWin = isWinner();
 			if(isWin == -1)
 			{
@@ -35,11 +37,11 @@ public class Gameplay {
 				System.out.println("The player wins!!!");
 				break;
 			}
-			
+
 			System.out.print("\nIt's your turn. What column would you like to go in? ");
 			player = scan.nextInt();
 			playerSuccess = playMove(player);
-			
+
 			//error trapping for column fill
 			while(!playerSuccess)
 			{
@@ -47,7 +49,7 @@ public class Gameplay {
 				player = scan.nextInt();
 				playerSuccess = playMove(player);
 			} //end of error trapping
-			
+
 			clear();
 			printArray();
 			isWin = isWinner();
@@ -61,12 +63,13 @@ public class Gameplay {
 				System.out.println("The player wins!!!");
 				break;
 			}
-			
+
+			moves++;
 			System.out.println();
-		
+
 		}
 	}
-	
+
 	public static void printArray()
 	{
 		for(int r = 0; r < board.length; r++)
@@ -75,32 +78,150 @@ public class Gameplay {
 				System.out.print(board[r][c] + " ");
 			System.out.println();
 		}
-				
+
 	}
-	
+
 	//where AI will go
 	public static int getMove()
 	{
-		int col = rand.nextInt(7) + 1; 
-		while(board[0][col - 1] != '-')
+		if(moves == 0)
+			return 3;
+		else if(moves == 1)
 		{
-			col = rand.nextInt(7) + 1;
+			if (board[5][2] != '-' || board[5][1] != '-')
+				return 5;
+			else if(board[5][4] != '-' || board[5][5] != '-')
+				return 1;
+			else
+				return 3;
 		}
-		
-		return col;
+		else if(moves == 2)
+		{
+			if(board[4][3] == 'O' && board[2][3] == 'O')
+				return 3;
+			else if(board[5][4] == 'O' && board[5][1] == 'X') //player moved in [5][4] first
+			{
+				if(board[5][0] == 'O')
+					return 1;
+				else if(board[4][1] == 'O' || board[4][4] == 'O')
+					return 0;
+				else if(board[5][2] == 'O')
+					return 2;
+				else if(board[4][3] == 'O' || board[5][5] == 'O' || board[5][6] == 'O')
+					return 3;
+				else{System.out.println("Never happen"); return 6;}	//should never happen
+			}
+			else if(board[5][2] == 'O' && board[5][5] == 'X') //player moved in [5][2] first
+			{
+				if(board[4][3] == 'O' || board[5][0] == 'O' || board[5][1] == 'O')
+					return 3;
+				else if(board[5][4] == 'O')
+					return 4;
+				else if(board[5][6] == 'O')
+					return 5;
+				else if(board[4][2] == 'O' || board[4][5] == 'O')
+					return 6;
+				else{System.out.println("Never happen"); return 6;}	//should never happen
+			}
+			else if(board[5][1] == 'O' && board[5][5] == 'X') //player moved in [5][1] first
+			{
+				if(board[5][0] == 'O' || board[4][1] == 'O' || board[4][3] == 'O' || board[4][5] == 'O')
+					return 4;
+				else if(board[5][4] == 'O')
+					return 5;
+				else return 3;
+			}
+			else if(board[5][5] == 'O' && board[5][1] == 'X') //player moved in [5][5] first
+			{
+				if(board[5][6] == 'O' || board[4][5] == 'O' || board[4][1] == 'O' || board[4][3] == 'O')
+					return 2;
+				else if(board[5][2] == 'O')
+					return 1;
+				else return 3;
+			}
+			else
+				return 3;
+		}
+		else
+		{
+			int r = attack();
+			if(r >= 0)
+				return r;
+			r = block();
+			if(block() >= 0)
+				return r;
+
+
+			r = basicTrap('X');
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+			}
+			r = basicTrap('O');
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+			}
+
+			r = horiz2();
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+			}
+			r = horiz();
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+			}
+			r = vert();
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+
+			}
+			return nothingElse();
+
+		}
 	}
-	
+
 	//place the computer's piece
 	public static void compMove(int col)
 	{
-		col--;
-		for(int r = board.length - 1; r >= 0; r--)
+		int[] totals = countColumns();
+		if(totals[col] < 6)
 		{
-			if(board[r][col] == '-')
+			for(int r = board.length - 1; r >= 0; r--)
 			{
-				board[r][col] = 'X';
-				r = -5;
+				if(board[r][col] == '-')
+				{
+					board[r][col] = 'X';
+					break;
+				}
 			}
+		}
+		else
+		{
+			compMove(randoms());
 		}
 	}
 
@@ -118,7 +239,7 @@ public class Gameplay {
 			if (col >= 1 && col <= 7)
 				valid = true;
 		} //end of error trapping
-		
+
 		col--;
 		for(int r = board.length - 1; r >= 0; r--)
 		{
@@ -130,7 +251,145 @@ public class Gameplay {
 		}
 		return false;
 	}
-	
+
+	public static int attack()
+	{
+		int r = horizontalA();
+		if(r >= 0)
+			return r;
+		r = verticalA();
+		if(r>=0)
+			return r;
+		r = diagonalA();
+		if(r>=0)
+			return r;
+		return -1;
+	}
+
+	public static int block()
+	{
+		int r = horizontal();
+		if(r >= 0)
+			return r;
+		r = vertical();
+		if(r >= 0)
+			return r;
+		r = diagonal();
+		if(r>=0)
+			return r;
+		return -1;
+	}
+
+	public static int horizontal()
+	{
+		for(int r = board.length-1; r>=0 ; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				//if its on the ends
+				if((c + 2) < board[0].length)
+				{
+					if(board[r][c] == 'O' && board[r][c+1] == 'O' && board[r][c+2] == 'O')
+					{
+						if((c - 1 >= 0) && board[r][c - 1] == '-' && ((r == 5) || board[r+1][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && board[r][c + 3] == '-' && ((r == 5) || board[r + 1][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+				if((c + 3) < board[0].length && board[r][c] == 'O' && board[r][c+3] == 'O')
+				{
+					if(board[r][c + 1] == 'O' &&  board[r][c+2] == '-')
+					{
+						if(r == 5 || board[r+1][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r][c+1] == '-' && board[r][c+2] == 'O')
+					{
+						if(r == 5 || board[r+1][c+1] != '-')
+							return c+1;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static int vertical()
+	{
+		for(int r = 5; r  >= 3; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				if(board[r][c] == 'O' && board[r-1][c] == 'O' && board[r-2][c] == 'O' && board[r-3][c] == '-')
+					return c;
+			}
+		}
+		return -1;
+	}
+
+	public static int diagonal()
+	{
+		for(int r = board.length-1; r>=0 ; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				//if its on the ends
+				if((c + 2) < board[0].length && (r + 2) < board.length)
+				{
+					if(board[r][c] == 'O' && board[r+1][c+1] == 'O' && board[r+2][c+2] == 'O')
+					{
+						if((c - 1 >= 0) && (r - 1 >= 0) && board[r-1][c - 1] == '-' && ((r-1 == 5) || board[r][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && r + 3 < board.length && board[r+ 3][c + 3] == '-' && ((r+3 == 5) || board[r + 2][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+
+				if((c + 2) < board[0].length && (r - 2) >=0)
+				{
+					if(board[r][c] == 'O' && board[r-1][c+1] == 'O' && board[r-2][c+2] == 'O')
+					{
+						if((c - 1 >= 0) && (r + 1 < board.length) && board[r+1][c - 1] == '-' && ((r+1 == 5) || board[r+2][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && r - 3 >= 0 && board[r - 3][c + 3] == '-' && ((r-3 == 5) || board[r - 2][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+
+				//in the middle
+				if((c + 3) < board[0].length &&(r + 3 < board.length) && board[r][c] == 'O' && board[r+3][c+3] == 'O')
+				{
+					if(board[r+1][c + 1] == 'O' &&  board[r+2][c+2] == '-')
+					{
+						if(r + 2 == 5 || board[r+3][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r+1][c+1] == '-' && board[r+2][c+2] == 'O')
+					{
+						if(r +1 == 5 || board[r+2][c+1] != '-')
+							return c+1;
+					}
+				}
+
+				if((c + 3) < board[0].length &&(r - 3 >= 0) && board[r][c] == 'O' && board[r-3][c+3] == 'O')
+				{
+					System.out.println("ayyyyooo");
+					if(board[r-1][c + 1] == 'O' &&  board[r-2][c+2] == '-')
+					{
+						if(r - 2 == 5 || board[r-1][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r-1][c+1] == '-' && board[r-2][c+2] == 'O')
+					{
+						if(r - 1 == 5 || board[r-1][c+1] != '-')
+							return c+1;
+					}
+				}
+			}
+		}
+		return -1;
+	}
 	public static int isWinner()
 	{
 		//int winner = 0;
@@ -153,7 +412,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//check right
 					if(c + 3 < board[0].length)
 					{
@@ -165,7 +424,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//check down
 					if(r - 3 >= 0)
 					{
@@ -177,7 +436,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//checks up
 					if(r + 3 < board.length)
 					{
@@ -189,7 +448,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//checks up left
 					if(c - 3 >= 0 && r + 3 < board.length)
 					{
@@ -201,7 +460,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//checks up right
 					if(c + 3 < board[0].length && r + 3 < board.length)
 					{
@@ -213,7 +472,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//checks down left
 					if(c - 3 >= 0 && r - 3 >= 0)
 					{
@@ -225,7 +484,7 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
+
 					//checks down right
 					if(c + 3 < board[0].length && r - 3 >= 0)
 					{
@@ -237,20 +496,345 @@ public class Gameplay {
 								return 1;
 						}
 					}
-					
-					
-					
+
+
+
 				}
 			}
 		}
-		
+
 		return 0;
 	}
-	
+
 	public static void clear()
 	{
 		for(int i = 0; i < 25; i++)
 			System.out.println();
 	}
-	
+
+	public static int horizontalA()
+	{
+		for(int r = board.length-1; r>=0 ; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				//if its on the ends
+				if((c + 2) < board[0].length)
+				{
+					if(board[r][c] == 'X' && board[r][c+1] == 'X' && board[r][c+2] == 'X')
+					{
+						if((c - 1 >= 0) && board[r][c - 1] == '-' && ((r == 5) || board[r+1][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && board[r][c + 3] == '-' && ((r == 5) || board[r + 1][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+				if((c + 3) < board[0].length && board[r][c] == 'X' && board[r][c+3] == 'X')
+				{
+					if(board[r][c + 1] == 'X' &&  board[r][c+2] == '-')
+					{
+						if(r == 5 || board[r+1][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r][c+1] == '-' && board[r][c+2] == 'X')
+					{
+						if(r == 5 || board[r+1][c+1] != '-')
+							return c+1;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static int verticalA()
+	{
+		for(int r = 5; r  >= 3; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				if(board[r][c] == 'X' && board[r-1][c] == 'X' && board[r-2][c] == 'X' && board[r-3][c] == '-')
+					return c;
+			}
+		}
+		return -1;
+	}
+
+	public static int diagonalA()
+	{
+		for(int r = board.length-1; r>=0 ; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				//if its on the ends
+				if((c + 2) < board[0].length && (r + 2) < board.length)
+				{
+					if(board[r][c] == 'X' && board[r+1][c+1] == 'X' && board[r+2][c+2] == 'X')
+					{
+						if((c - 1 >= 0) && (r - 1 >= 0) && board[r-1][c - 1] == '-' && ((r-1 == 5) || board[r][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && r + 3 < board.length && board[r + 3][c + 3] == '-' && ((r+3 == 5) || board[r + 2][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+
+				if((c + 2) < board[0].length && (r - 2) >=0)
+				{
+					if(board[r][c] == 'X' && board[r-1][c+1] == 'X' && board[r-2][c+2] == 'X')
+					{
+						if((c - 1 >= 0) && (r + 1 < board.length) && board[r+1][c - 1] == '-' && ((r+1 == 5) || board[r+2][c-1] != '-'))
+							return (c - 1);
+						if(c + 3 < board[0].length && r - 3 >= 0 && board[r - 3][c + 3] == '-' && ((r-3 == 5) || board[r - 2][c+3] != '-'))
+							return (c + 3);
+					}
+				}
+
+				//in the middle
+				if((c + 3) < board[0].length &&(r + 3 < board.length) && board[r][c] == 'X' && board[r+3][c+3] == 'X')
+				{
+					if(board[r+1][c + 1] == 'X' &&  board[r+2][c+2] == '-')
+					{
+						if(r + 2 == 5 || board[r+3][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r+1][c+1] == '-' && board[r+2][c+2] == 'X')
+					{
+						if(r +1 == 5 || board[r+2][c+1] != '-')
+							return c+1;
+					}
+				}
+
+				if((c + 3) < board[0].length &&(r - 3 >= 0) && board[r][c] == 'X' && board[r-3][c+3] == 'X')
+				{
+					//System.out.println("ayyyyooo");
+					if(board[r-1][c + 1] == 'X' &&  board[r-2][c+2] == '-')
+					{
+						if(r - 2 == 5 || board[r-1][c+2] != '-')
+							return c + 2;
+					}
+					else if(board[r-1][c+1] == '-' && board[r-2][c+2] == 'X')
+					{
+						if(r - 1 == 5 || board[r-1][c+1] != '-')
+							return c+1;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+	public static int basicTrap(char player)
+	{
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 1; c <= 3; c++)
+			{
+				if(board[r][c - 1] == '-' && board[r][c] == player && board[r][c+1] == '-' && board[r][c+2] == player && board[r][c+3] == '-')
+					if(r == 5 || board[r + 1][c + 1] != '-')
+						return (c+1);
+			}
+		}
+		return -1;
+	}
+
+	public static int horiz2()
+	{
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 1; c <= 4; c++)
+			{
+				char curr = board[r][c];
+				if(curr != '-')
+				{
+					if(board[r][c-1] == '-' && board[r][c + 1] == curr && board[r][c+2] == '-')
+					{
+						if(r==5 || board[r+1][c-1] != '-')
+							return c-1;
+						else if(board[r+1][c+2] != '-')
+							return c+2;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static int horiz()
+	{
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 0; c <= 3; c++)
+			{
+				char curr = board[r][c];
+				if(curr != '-')
+				{
+					if(board[r][c + 1] == curr && board[r][c + 2] == '-' && board[r][c + 3] == '-')
+					{
+						if(r == 5 || board[r + 1][c + 3] != '-')
+							return c + 3;
+						else if(board[r + 1][c + 2] != '-')
+							return c + 2;
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static int vert()
+	{
+		for(int r = 1; r <= 4; r++)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				if(board[r][c] == 'O')
+				{
+					char curr = board[r][c];
+					if(board[r - 1][c] == '-' && board[r + 1][c] == curr)
+						return c;
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static int nothingElse()
+	{
+		nothings++;
+		int[] totals = countColumns();
+		if(totals[3] >= 3)
+		{
+			if(board[totals[3] - 1][3] == 'O' && totals[3] < 6)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, 3);
+				if(Helpers.block(copy) < 0)
+					return 3;
+			}
+		}
+
+		if(nothings == 0)
+		{
+			int col = rand.nextInt(2);
+			if(col == 0)
+			{	if(totals[2] < 6)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, 2);
+				if(Helpers.block(copy) < 0)
+					return 2;
+			}
+			}
+			else
+			{
+				if(totals[4] < 6)
+				{
+					char[][] copy = new char[6][7];
+					copy = copyBoard();
+					copy = Helpers.compM(copy, 4);
+					if(Helpers.block(copy) < 0)
+						return 4;
+				}
+			}
+		}
+		else if(nothings == 1 || nothings == 2)
+		{
+			int col = rand.nextInt(3);
+			if(col == 0)
+			{
+				if(totals[2] <= 6)
+				{
+					char[][] copy = new char[6][7];
+					copy = copyBoard();
+					copy = Helpers.compM(copy, 2);
+					if(Helpers.block(copy) < 0)
+						return 2;
+				}
+			}
+			else if (col == 1)
+			{
+				if(totals[4] < 6)
+				{
+					char[][] copy = new char[6][7];
+					copy = copyBoard();
+					copy = Helpers.compM(copy, 4);
+					if(Helpers.block(copy) < 0)
+						return 4;
+				}
+			}
+			else
+			{
+				if(totals[3] < 6)
+				{
+					char[][] copy = new char[6][7];
+					copy = copyBoard();
+					copy = Helpers.compM(copy, 3);
+					if(Helpers.block(copy) < 0)
+						return 3;
+				}
+			}
+		}
+		return randoms();
+
+	}
+
+	public static int randoms()
+	{
+		int[] tots = countColumns();
+		for(int i = 0; i < 100; i++)
+		{
+			int col = rand.nextInt(7);
+			if(tots[col] <= 6)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, col);
+				if(Helpers.block(copy) < 0)
+					return col;
+			}
+		}
+		return emergency();
+	}
+
+	public static int[] countColumns()
+	{
+		int[] totals = new int[board[0].length];
+		for(int c = 0; c < board[0].length; c++)
+		{
+			for(int r = 0; r < board.length; r++)
+			{
+				if(board[r][c] != '-')
+					totals[c]++;
+			}
+		}
+
+		return totals;
+	}
+
+	public static char[][] copyBoard()
+	{
+		char[][] copy = new char[6][7];
+
+		for(int r = 0; r < board.length; r++)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				copy[r][c] = board[r][c];
+			}
+		}
+
+		return copy;
+	}
+
+	public static int emergency()
+	{
+		int[] count = countColumns();
+		for(int i = 0; i < 7; i++)
+			if(count[i] < 6)
+				return i;
+
+		return 6;
+	}
+
 }
