@@ -359,6 +359,16 @@ public class Gameplay {
 				if(Helpers.block(copy) < 0)
 					return r;
 			}
+			
+			r = diag();
+			if(r >= 0)
+			{
+				char[][] copy = new char[6][7];
+				copy = copyBoard();
+				copy = Helpers.compM(copy, r);
+				if(Helpers.block(copy) < 0)
+					return r;
+			}
 			r = horiz();
 			if(r >= 0)
 			{
@@ -1012,5 +1022,37 @@ public class Gameplay {
 
 		return 6;
 	}
+	
+	public static int diag()
+	{
+		for(int r = board.length-1; r>=0 ; r--)
+		{
+			for(int c = 0; c < board[0].length; c++)
+			{
+				//if its on the ends
+				if((c + 1) < board[0].length && (r + 1) < board.length)
+				{
+					if(board[r][c] == 'O' && board[r+1][c+1] == 'O')
+					{
+						if((c - 1 >= 0) && (r - 1 >= 0) && board[r-1][c - 1] == '-' && ((r-1 == 5) || board[r][c-1] != '-'))
+							return (c - 1);
+						if(c + 2 < board[0].length && r + 2 < board.length && board[r + 2][c + 2] == '-' && ((r+2 == 5) || board[r + 1][c+3] != '-'))
+							return (c + 2);
+					}
+				}
 
+				if((c + 1) < board[0].length && (r - 1) >=0)
+				{
+					if(board[r][c] == 'X' && board[r-1][c+1] == 'X')
+					{
+						if((c - 1 >= 0) && (r + 1 < board.length) && board[r+1][c - 1] == '-' && ((r+1 == 5) || board[r+2][c-1] != '-'))
+							return (c - 1);
+						if(c + 2 < board[0].length && r - 2 >= 0 && board[r - 2][c + 2] == '-' && ((r-2 == 5) || board[r - 1][c+2] != '-'))
+							return (c + 2);
+					}
+				}
+			}
+		}
+		return -1;
+	}
 }
